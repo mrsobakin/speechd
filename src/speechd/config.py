@@ -7,6 +7,7 @@ model = "whisper-large-v3-turbo"
 language = "ru"
 sample_rate = 16000
 timeout = 300
+audio_quality = 0.8
 """
 
 
@@ -18,6 +19,7 @@ class Config:
     sample_rate: int
     timeout_seconds: int
     runtime_dir: str
+    audio_quality: float
 
     @classmethod
     def load(cls) -> "Config":
@@ -47,4 +49,5 @@ class Config:
             sample_rate=data.get("sample_rate", 16000),
             timeout_seconds=data.get("timeout", 300),
             runtime_dir=os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
+            audio_quality=data.get("audio_quality", 0.8),
         )

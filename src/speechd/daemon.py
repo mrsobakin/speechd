@@ -28,6 +28,7 @@ class SpeechDaemon:
             model=config.model,
             language=config.language,
             sample_rate=config.sample_rate,
+            audio_quality=config.audio_quality,
         )
         self.recording = False
         self.frames: list[np.ndarray] = []

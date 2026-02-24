@@ -17,11 +17,14 @@ class TranscriptionResult:
 
 
 class Transcriber:
-    def __init__(self, api_key: str, model: str, language: str, sample_rate: int):
+    def __init__(
+        self, api_key: str, model: str, language: str, sample_rate: int, audio_quality: float
+    ):
         self.client = Groq(api_key=api_key)
         self.model = model
         self.language = language
         self.sample_rate = sample_rate
+        self.audio_quality = audio_quality
 
     def transcribe(self, audio_data: np.ndarray) -> TranscriptionResult:
         if len(audio_data) == 0:
@@ -53,6 +56,6 @@ class Transcriber:
             self.sample_rate,
             format="OGG",
             subtype="OPUS",
-            compression_level=0.8,
+            compression_level=self.audio_quality,
         )
         return buf.getvalue()
