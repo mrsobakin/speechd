@@ -1,14 +1,15 @@
+import logging
 import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_CONFIG = """api_key = "your-grok-api-key"
-model = "whisper-large-v3-turbo"
-language = "ru"
-sample_rate = 16000
-timeout = 300
-audio_quality = 0.8
-"""
+
+def get_config_path() -> Path:
+    config_home = os.environ.get("XDG_CONFIG_HOME")
+    if config_home:
+        return Path(config_home) / "speechd" / "config.toml"
+    return Path.home() / ".config" / "speechd" / "config.toml"
 
 
 @dataclass(frozen=True)
@@ -25,14 +26,16 @@ class Config:
     def load(cls) -> "Config":
         import tomllib
 
-        config_path = Path.home() / ".config" / "speechd" / "config.toml"
+        config_path = get_config_path()
 
         if not config_path.exists():
-            config_path.parent.mkdir(parents=True, exist_ok=True)
-            config_path.write_text(DEFAULT_CONFIG)
-            config_path.chmod(0o600)
-            raise RuntimeError(
-                f"Config created at {config_path}\nPlease edit and add your Groq API key"
+            raise RuntimeError(f"Config not found at {config_path}")
+
+        mode = config_path.stat().st_mode
+        if mode & (stat.S_IRGRP | stat.S_IROTH):
+            logging.warning(
+                "WARNING: %s is world accessible. Consider limiting its permissions (600).",
+                config_path,
             )
 
         with open(config_path, "rb") as f:

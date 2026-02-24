@@ -1,0 +1,15 @@
+[Unit]
+Description=Speech-to-Text daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/speechd
+Restart=on-failure
+RestartSec=3
+
+ProtectSystem=full
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

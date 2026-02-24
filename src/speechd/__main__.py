@@ -2,23 +2,14 @@ from __future__ import annotations
 
 import argparse
 import logging
+from importlib import resources
 
 from speechd.config import Config
 from speechd.daemon import SpeechDaemon
 
-SERVICE_UNIT = """[Unit]
-Description=Speech-to-Text daemon
-After=graphical-session.target
 
-[Service]
-Type=simple
-ExecStart=%h/.local/bin/speechd
-Restart=on-failure
-RestartSec=3
-
-[Install]
-WantedBy=default.target
-"""
+def get_service_unit() -> str:
+    return resources.files("speechd").joinpath("speechd.service").read_text()
 
 
 def install_service():
@@ -28,14 +19,13 @@ def install_service():
     service_file = service_dir / "speechd.service"
 
     service_dir.mkdir(parents=True, exist_ok=True)
-    service_file.write_text(SERVICE_UNIT)
+    service_file.write_text(get_service_unit())
 
     print(f"Installed: {service_file}")
     print("\nNext steps:")
-    print("  1. Run 'speechd' to create config file")
-    print("  2. Edit ~/.config/speechd/config.toml and add your API key")
-    print("  3. Run: systemctl --user enable --now speechd")
-    print("  4. Toggle recording: speechd-toggle")
+    print("  1. Create ~/.config/speechd/config.toml with your API key")
+    print("  2. Run: systemctl --user enable --now speechd")
+    print("  3. Toggle recording: speechd-toggle")
 
 
 def main():

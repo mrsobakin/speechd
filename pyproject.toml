@@ -1,6 +1,6 @@
 [project]
 name = "speechd"
-version = "1.2.7"
+version = "1.2.8"
 description = "Speech-to-Text daemon with Groq Whisper API"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,6 +23,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/speechd"]
+include = ["src/speechd/*.service"]
 
 [tool.hatch.build.targets.wheel.shared-scripts]
 "scripts/speechd-toggle" = "speechd-toggle"
