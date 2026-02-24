@@ -1,0 +1,15 @@
+#!/bin/bash
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/speechd.pid"
+
+if [ -f "$PIDFILE" ]; then
+    PID=$(cat "$PIDFILE")
+    if kill -0 "$PID" 2>/dev/null; then
+        kill -USR1 "$PID"
+    else
+        echo "Daemon not running (stale pidfile)" >&2
+        exit 1
+    fi
+else
+    echo "Daemon not running (no pidfile)" >&2
+    exit 1
+fi
