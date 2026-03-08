@@ -21,6 +21,7 @@ class Config:
     timeout_seconds: int
     runtime_dir: str
     audio_quality: float
+    typer: tuple[str, ...]
 
     @classmethod
     def load(cls) -> "Config":
@@ -45,6 +46,10 @@ class Config:
         if not api_key or api_key == "your-api-key-here":
             raise RuntimeError(f"Please set api_key in {config_path}")
 
+        typer = data.get("typer", [])
+        if not typer:
+            raise RuntimeError(f"Please set typer in {config_path}")
+
         return cls(
             groq_api_key=api_key,
             model=data.get("model", "whisper-large-v3-turbo"),
@@ -53,4 +58,5 @@ class Config:
             timeout_seconds=data.get("timeout", 300),
             runtime_dir=os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
             audio_quality=data.get("audio_quality", 0.8),
+            typer=tuple(typer),
         )

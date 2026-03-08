@@ -100,11 +100,11 @@ class SpeechDaemon:
         text = self._postprocess_text(text).strip().replace("\n", " ")
         if text:
             try:
-                subprocess.run(["wtype", "-"], input=text.encode(), check=True)
+                subprocess.run(list(self.config.typer), input=text.encode(), check=True)
             except subprocess.CalledProcessError as e:
                 logger.error(f"Failed to type text: {e}")
             except FileNotFoundError:
-                logger.error("wtype not found - cannot type text")
+                logger.error(f"Typer not found: {self.config.typer[0]}")
 
     def run(self):
         if not self._acquire_pidfile():
@@ -113,10 +113,13 @@ class SpeechDaemon:
 
         signal.signal(signal.SIGCONT, lambda *_: self.recorder.stop())
         signal.signal(signal.SIGTERM, lambda *_: (self.cleanup(), exit(0)))
-        signal.signal(signal.SIGINT,  lambda *_: (self.cleanup(), exit(0)))
+        signal.signal(signal.SIGINT, lambda *_: (self.cleanup(), exit(0)))
 
         logger.info(f"Ready. PID: {os.getpid()}")
-        logger.info(f"Model: {self.config.model}, Language: {self.config.language or 'auto-detect'}")
+        logger.info(
+            f"Model: {self.config.model}, Language: {self.config.language or 'auto-detect'}"
+        )
+        logger.info(f"Typer: {' '.join(self.config.typer)}")
         logger.info(f"Timeout: {self.config.timeout_seconds}s")
 
         while True:
