@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+tmp_file=$(mktemp)
+chmod 600 "$tmp_file"
+trap 'rm -f "$tmp_file"' EXIT
+
+wl-paste > "$tmp_file" 2>/dev/null || true
+
+wl-copy
+wtype -M ctrl -M shift v -m shift -m ctrl
+
+wl-copy < "$tmp_file"
