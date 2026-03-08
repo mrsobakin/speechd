@@ -6,6 +6,7 @@ from importlib import resources
 
 from speechd.config import Config
 from speechd.daemon import SpeechDaemon
+from speechd.preview import run_preview
 
 
 def get_service_unit() -> str:
@@ -33,6 +34,9 @@ def main():
     parser.add_argument(
         "--install-service", action="store_true", help="Install systemd user service"
     )
+    parser.add_argument(
+        "--preview", action="store_true", help="Record audio, preprocess, and play back"
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
@@ -51,6 +55,10 @@ def main():
     except RuntimeError as e:
         logging.error(str(e))
         raise SystemExit(1)
+
+    if args.preview:
+        run_preview(config)
+        return
 
     daemon = SpeechDaemon(config)
     daemon.run()

@@ -7,7 +7,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from speechd.audio import VoiceActivityDetector
+from speechd.preprocessing import VoiceActivityDetector
 from speechd.config import Config
 from speechd.transcribe import Transcriber
 from speechd.recorder import AudioRecorder, RecordingResult
