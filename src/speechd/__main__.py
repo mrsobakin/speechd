@@ -50,15 +50,15 @@ def main():
         datefmt="%H:%M:%S",
     )
 
+    if args.preview:
+        run_preview()
+        return
+
     try:
         config = Config.load()
     except RuntimeError as e:
         logging.error(str(e))
         raise SystemExit(1)
-
-    if args.preview:
-        run_preview(config)
-        return
 
     daemon = SpeechDaemon(config)
     daemon.run()

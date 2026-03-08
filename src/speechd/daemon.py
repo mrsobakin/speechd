@@ -21,19 +21,15 @@ class SpeechDaemon:
         logger.info("Loading VAD model...")
         self.pipeline = Pipeline(
             AGC(),
-            VoiceActivityDetector(sample_rate=config.sample_rate),
+            VoiceActivityDetector(),
         )
         self.transcriber = Transcriber(
             api_key=config.api_key,
             model=config.model,
             language=config.language,
-            sample_rate=config.sample_rate,
             audio_quality=config.audio_quality,
         )
-        self.recorder = AudioRecorder(
-            sample_rate=config.sample_rate,
-            timeout_seconds=config.timeout_seconds,
-        )
+        self.recorder = AudioRecorder(timeout_seconds=config.timeout_seconds)
 
         self.runtime_dir = Path(config.runtime_dir)
         self.indicator_file = self.runtime_dir / "speechd.recording"
@@ -72,7 +68,7 @@ class SpeechDaemon:
         if not result.has_audio:
             return
 
-        duration = len(result.audio) / self.config.sample_rate
+        duration = len(result.audio) / 16000
         logger.info(f"Processing {duration:.1f}s of audio...")
 
         t0 = time.monotonic()

@@ -17,13 +17,10 @@ class TranscriptionResult:
 
 
 class Transcriber:
-    def __init__(
-        self, api_key: str, model: str, language: str | None, sample_rate: int, audio_quality: float
-    ):
+    def __init__(self, api_key: str, model: str, language: str | None, audio_quality: float):
         self.client = Groq(api_key=api_key)
         self.model = model
         self.language = language
-        self.sample_rate = sample_rate
         self.audio_quality = audio_quality
 
     def transcribe(self, audio_data: np.ndarray) -> TranscriptionResult:
@@ -35,7 +32,7 @@ class Transcriber:
             buffer = io.BytesIO(opus_data)
             buffer.name = "audio.ogg"
 
-            logger.debug(f"Transcribing {len(audio_data) / self.sample_rate:.1f}s of audio")
+            logger.debug(f"Transcribing {len(audio_data) / 16000:.1f}s of audio")
 
             if self.language:
                 result = self.client.audio.transcriptions.create(
@@ -70,7 +67,7 @@ class Transcriber:
         sf.write(
             buf,
             audio_float,
-            self.sample_rate,
+            16000,
             format="OGG",
             subtype="OPUS",
             compression_level=self.audio_quality,

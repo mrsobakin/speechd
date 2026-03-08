@@ -20,8 +20,7 @@ class RecordingResult:
 
 
 class AudioRecorder:
-    def __init__(self, sample_rate: int, timeout_seconds: float):
-        self.sample_rate = sample_rate
+    def __init__(self, timeout_seconds: float):
         self.timeout_seconds = timeout_seconds
 
         self._frames: list[np.ndarray] = []
@@ -36,7 +35,7 @@ class AudioRecorder:
         self._done.clear()
         self._start_time = time.monotonic()
         self._stream = sd.InputStream(
-            samplerate=self.sample_rate,
+            samplerate=16000,
             channels=1,
             dtype=np.int16,
             callback=self._callback,
@@ -67,4 +66,3 @@ class AudioRecorder:
                 self.stop()
                 return
         self._frames.append(indata.copy().flatten())
-

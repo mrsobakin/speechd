@@ -5,11 +5,12 @@ import torch
 
 logger = logging.getLogger(__name__)
 
+SAMPLE_RATE = 16000
+
 
 class VoiceActivityDetector:
-    def __init__(self, sample_rate: int = 16000, max_silence_ms: int = 500):
-        self.sample_rate = sample_rate
-        self.max_silence_samples = int(max_silence_ms * sample_rate / 1000)
+    def __init__(self, max_silence_ms: int = 500):
+        self.max_silence_samples = int(max_silence_ms * SAMPLE_RATE / 1000)
         logger.info("Loading Silero VAD model...")
         self.model, self.utils = torch.hub.load(
             repo_or_dir="snakers4/silero-vad",
@@ -32,7 +33,7 @@ class VoiceActivityDetector:
             speech_timestamps = get_speech_ts(
                 audio_tensor,
                 self.model,
-                sampling_rate=self.sample_rate,
+                sampling_rate=SAMPLE_RATE,
                 threshold=0.5,
                 min_speech_duration_ms=150,
                 min_silence_duration_ms=100,

@@ -4,16 +4,15 @@ import signal
 import numpy as np
 import sounddevice as sd
 
-from speechd.config import Config
 from speechd.preprocessing import AGC, Pipeline, VoiceActivityDetector
 
 logger = logging.getLogger(__name__)
 
 
-def run_preview(config: Config):
+def run_preview():
     pipeline = Pipeline(
         AGC(),
-        VoiceActivityDetector(sample_rate=config.sample_rate),
+        VoiceActivityDetector(),
     )
 
     frames: list[np.ndarray] = []
@@ -30,7 +29,7 @@ def run_preview(config: Config):
     signal.signal(signal.SIGINT, on_signal)
 
     stream = sd.InputStream(
-        samplerate=config.sample_rate,
+        samplerate=16000,
         channels=1,
         dtype=np.int16,
         callback=on_audio,
@@ -50,7 +49,7 @@ def run_preview(config: Config):
         return
 
     audio_raw = np.concatenate(frames)
-    duration_raw = len(audio_raw) / config.sample_rate
+    duration_raw = len(audio_raw) / 16000
     logger.info(f"Recorded {duration_raw:.1f}s of audio")
 
     logger.info("Applying AGC + VAD preprocessing...")
@@ -60,9 +59,9 @@ def run_preview(config: Config):
         logger.info("No speech detected after VAD")
         return
 
-    duration_clean = len(audio_clean) / config.sample_rate
+    duration_clean = len(audio_clean) / 16000
     logger.info(f"Playing back {duration_clean:.1f}s of processed audio...")
 
-    sd.play(audio_clean, config.sample_rate)
+    sd.play(audio_clean, 16000)
     sd.wait()
     logger.info("Done")
