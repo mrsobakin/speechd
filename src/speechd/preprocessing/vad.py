@@ -15,6 +15,7 @@ class VoiceActivityDetector:
             model="silero_vad",
             force_reload=False,
             trust_repo=True,
+            skip_validation=True,
         )
         self.model.eval()
         logger.info("VAD model loaded")
