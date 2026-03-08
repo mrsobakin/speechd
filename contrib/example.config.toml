@@ -1,0 +1,22 @@
+# Groq API key (required)
+api_key = "gsk_xxx"
+
+# Command to type the transcribed text (required)
+typer = ["wtype", "-"]
+
+# Whisper model to use (optional)
+# model = "whisper-large-v3-turbo"
+
+# Language code for transcription (optional)
+# If unset, Whisper will auto-detect the language
+# language = "en"
+
+# Maximum recording duration in seconds (optional, default: 300)
+# timeout = 300
+
+# Opus encoding quality, 0.0 to 1.0 (optional, default: 0.8)
+# audio_quality = 0.8
+
+# Directory for runtime files (optional, default: $XDG_RUNTIME_DIR or /tmp)
+# Used for pid file and recording indicator
+# runtime_dir = "/run/user/1000"
