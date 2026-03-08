@@ -1,8 +1,10 @@
 import logging
 import os
 import stat
-from dataclasses import dataclass
 from pathlib import Path
+
+import tomllib
+from pydantic import BaseModel, Field, field_validator
 
 
 def get_config_path() -> Path:
@@ -12,21 +14,25 @@ def get_config_path() -> Path:
     return Path.home() / ".config" / "speechd" / "config.toml"
 
 
-@dataclass(frozen=True)
-class Config:
-    groq_api_key: str
-    model: str
-    language: str | None
-    sample_rate: int
-    timeout_seconds: int
-    runtime_dir: str
-    audio_quality: float
+class Config(BaseModel, frozen=True):
+    api_key: str
     typer: tuple[str, ...]
+    model: str = "whisper-large-v3-turbo"
+    language: str | None = None
+    sample_rate: int = 16000
+    timeout_seconds: int = Field(default=300, alias="timeout")
+    audio_quality: float = 0.8
+    runtime_dir: str = Field(default_factory=lambda: os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+
+    @field_validator("api_key")
+    @classmethod
+    def validate_api_key(cls, v: str) -> str:
+        if not v or v == "your-api-key-here":
+            raise ValueError("api_key must be set")
+        return v
 
     @classmethod
     def load(cls) -> "Config":
-        import tomllib
-
         config_path = get_config_path()
 
         if not config_path.exists():
@@ -42,21 +48,4 @@ class Config:
         with open(config_path, "rb") as f:
             data = tomllib.load(f)
 
-        api_key = data.get("api_key", "")
-        if not api_key or api_key == "your-api-key-here":
-            raise RuntimeError(f"Please set api_key in {config_path}")
-
-        typer = data.get("typer", [])
-        if not typer:
-            raise RuntimeError(f"Please set typer in {config_path}")
-
-        return cls(
-            groq_api_key=api_key,
-            model=data.get("model", "whisper-large-v3-turbo"),
-            language=data.get("language"),
-            sample_rate=data.get("sample_rate", 16000),
-            timeout_seconds=data.get("timeout", 300),
-            runtime_dir=os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
-            audio_quality=data.get("audio_quality", 0.8),
-            typer=tuple(typer),
-        )
+        return cls.model_validate(data)

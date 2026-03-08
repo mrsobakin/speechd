@@ -21,7 +21,7 @@ class SpeechDaemon:
         logger.info("Loading VAD model...")
         self.vad = VoiceActivityDetector(sample_rate=config.sample_rate)
         self.transcriber = Transcriber(
-            api_key=config.groq_api_key,
+            api_key=config.api_key,
             model=config.model,
             language=config.language,
             sample_rate=config.sample_rate,
