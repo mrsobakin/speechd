@@ -3,7 +3,7 @@ name = "speechd"
 version = "1.4.0"
 description = "Speech-to-Text daemon with Groq Whisper API"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = { text = "GPL-3.0-or-later" }
 dependencies = [
     "groq>=0.4.0",
     "numpy>=1.24.0",
@@ -39,7 +39,7 @@ include = ["src/speechd/*.service"]
 "scripts/speechd-toggle" = "speechd-toggle"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.format]
