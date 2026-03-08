@@ -7,8 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 class VoiceActivityDetector:
-    def __init__(self, sample_rate: int = 16000):
+    def __init__(self, sample_rate: int = 16000, max_silence_ms: int = 500):
         self.sample_rate = sample_rate
+        self.max_silence_samples = int(max_silence_ms * sample_rate / 1000)
         logger.info("Loading Silero VAD model...")
         self.model, self.utils = torch.hub.load(
             repo_or_dir="snakers4/silero-vad",
@@ -40,7 +41,16 @@ class VoiceActivityDetector:
         if not speech_timestamps:
             return np.array([], dtype=np.float32)
 
-        result = np.zeros_like(audio)
+        segments = []
+        prev_end = 0
+
         for ts in speech_timestamps:
-            result[ts["start"] : ts["end"]] = audio[ts["start"] : ts["end"]]
-        return result
+            silence_len = ts["start"] - prev_end
+            if silence_len > 0:
+                silence_samples = min(silence_len, self.max_silence_samples)
+                segments.append(np.zeros(silence_samples, dtype=np.float32))
+
+            segments.append(audio[ts["start"] : ts["end"]])
+            prev_end = ts["end"]
+
+        return np.concatenate(segments) if segments else np.array([], dtype=np.float32)
