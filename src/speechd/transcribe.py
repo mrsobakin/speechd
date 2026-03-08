@@ -18,7 +18,7 @@ class TranscriptionResult:
 
 class Transcriber:
     def __init__(
-        self, api_key: str, model: str, language: str, sample_rate: int, audio_quality: float
+        self, api_key: str, model: str, language: str | None, sample_rate: int, audio_quality: float
     ):
         self.client = Groq(api_key=api_key)
         self.model = model
@@ -36,13 +36,22 @@ class Transcriber:
             buffer.name = "audio.ogg"
 
             logger.debug(f"Transcribing {len(audio_data) / self.sample_rate:.1f}s of audio")
-            result = self.client.audio.transcriptions.create(
-                file=buffer,
-                model=self.model,
-                language=self.language,
-                response_format="text",
-            )
-            return TranscriptionResult(text=result, success=True)
+
+            if self.language:
+                result = self.client.audio.transcriptions.create(
+                    file=buffer,
+                    model=self.model,
+                    language=self.language,
+                    response_format="text",
+                )
+            else:
+                result = self.client.audio.transcriptions.create(
+                    file=buffer,
+                    model=self.model,
+                    response_format="text",
+                )
+
+            return TranscriptionResult(text=str(result), success=True)
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             return TranscriptionResult(text="", success=False, error=str(e))

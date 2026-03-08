@@ -1,6 +1,6 @@
 [project]
 name = "speechd"
-version = "1.2.8"
+version = "1.2.9"
 description = "Speech-to-Text daemon with Groq Whisper API"
 readme = "README.md"
 requires-python = ">=3.11"

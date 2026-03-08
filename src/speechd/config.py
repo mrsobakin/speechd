@@ -16,7 +16,7 @@ def get_config_path() -> Path:
 class Config:
     groq_api_key: str
     model: str
-    language: str
+    language: str | None
     sample_rate: int
     timeout_seconds: int
     runtime_dir: str
@@ -48,7 +48,7 @@ class Config:
         return cls(
             groq_api_key=api_key,
             model=data.get("model", "whisper-large-v3-turbo"),
-            language=data.get("language", "ru"),
+            language=data.get("language"),
             sample_rate=data.get("sample_rate", 16000),
             timeout_seconds=data.get("timeout", 300),
             runtime_dir=os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
