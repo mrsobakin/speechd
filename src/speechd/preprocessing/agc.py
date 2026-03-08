@@ -1,18 +1,19 @@
 import numpy as np
+import pyloudnorm as pyln
 
 
 class AGC:
-    def __init__(self, target_rms: float = 0.2, max_gain_db: float = 30.0):
-        self.target_rms = target_rms
-        self.max_gain_db = max_gain_db
+    def __init__(self, target_loudness: float = -23.0):
+        self.meter = pyln.Meter(16000)
+        self.target_loudness = target_loudness
 
     def process(self, audio: np.ndarray) -> np.ndarray:
-        rms = np.sqrt(np.mean(audio**2))
-        if rms < 1e-9:
+        if len(audio) == 0:
             return audio
 
-        gain = self.target_rms / rms
-        max_gain = 10 ** (self.max_gain_db / 20)
-        gain = min(gain, max_gain)
+        loudness = self.meter.integrated_loudness(audio)
+        if loudness == -float("inf"):
+            return audio
 
-        return np.clip(audio * gain, -1.0, 1.0)
+        audio = pyln.normalize.loudness(audio, loudness, self.target_loudness)
+        return np.clip(audio, -1.0, 1.0).astype(np.float32)
