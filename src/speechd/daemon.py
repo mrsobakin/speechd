@@ -7,7 +7,7 @@ import subprocess
 import time
 from pathlib import Path
 
-from speechd.preprocessing import VoiceActivityDetector
+from speechd.preprocessing import AGC, Pipeline, VoiceActivityDetector
 from speechd.config import Config
 from speechd.transcribe import Transcriber
 from speechd.recorder import AudioRecorder, RecordingResult
@@ -19,7 +19,10 @@ class SpeechDaemon:
     def __init__(self, config: Config):
         self.config = config
         logger.info("Loading VAD model...")
-        self.vad = VoiceActivityDetector(sample_rate=config.sample_rate)
+        self.pipeline = Pipeline(
+            AGC(),
+            VoiceActivityDetector(sample_rate=config.sample_rate),
+        )
         self.transcriber = Transcriber(
             api_key=config.api_key,
             model=config.model,
@@ -73,7 +76,7 @@ class SpeechDaemon:
         logger.info(f"Processing {duration:.1f}s of audio...")
 
         t0 = time.monotonic()
-        audio_clean = self.vad.process(result.audio)
+        audio_clean = self.pipeline.process(result.audio)
         vad_time = time.monotonic() - t0
 
         if len(audio_clean) == 0:

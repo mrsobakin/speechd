@@ -20,12 +20,11 @@ class VoiceActivityDetector:
         self.model.eval()
         logger.info("VAD model loaded")
 
-    def process(self, audio_data: np.ndarray) -> np.ndarray:
-        if len(audio_data) == 0:
-            return audio_data
+    def process(self, audio: np.ndarray) -> np.ndarray:
+        if len(audio) == 0:
+            return audio
 
-        audio_float = audio_data.astype(np.float32) / 32768.0
-        audio_tensor = torch.from_numpy(audio_float)
+        audio_tensor = torch.from_numpy(audio)
 
         with torch.no_grad():
             get_speech_ts = self.utils[0]
@@ -34,14 +33,14 @@ class VoiceActivityDetector:
                 self.model,
                 sampling_rate=self.sample_rate,
                 threshold=0.5,
-                min_speech_duration_ms=250,
+                min_speech_duration_ms=150,
                 min_silence_duration_ms=100,
             )
 
         if not speech_timestamps:
-            return np.array([], dtype=np.int16)
+            return np.array([], dtype=np.float32)
 
-        result = np.zeros_like(audio_data)
+        result = np.zeros_like(audio)
         for ts in speech_timestamps:
-            result[ts["start"] : ts["end"]] = audio_data[ts["start"] : ts["end"]]
+            result[ts["start"] : ts["end"]] = audio[ts["start"] : ts["end"]]
         return result
