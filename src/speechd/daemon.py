@@ -27,6 +27,7 @@ class SpeechDaemon:
             api_key=config.api_key,
             model=config.model,
             language=config.language,
+            prompt=config.prompt,
             audio_quality=config.audio_quality,
         )
         self.recorder = AudioRecorder(timeout_seconds=config.timeout_seconds)
@@ -115,9 +116,7 @@ class SpeechDaemon:
         signal.signal(signal.SIGINT, lambda *_: (self.cleanup(), exit(0)))
 
         logger.info(f"Ready. PID: {os.getpid()}")
-        logger.info(
-            f"Model: {self.config.model}, Language: {self.config.language or 'auto-detect'}"
-        )
+        logger.info(f"Model: {self.config.model}, Language: {self.config.language or 'auto-detect'}")
         logger.info(f"Typer: {' '.join(self.config.typer)}")
         logger.info(f"Timeout: {self.config.timeout_seconds}s")
 

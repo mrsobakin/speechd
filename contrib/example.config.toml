@@ -11,6 +11,9 @@ typer = ["wtype", "-"]
 # If unset, Whisper will auto-detect the language
 # language = "en"
 
+# Initial prompt for whisper (optional)
+# prompt = ""
+
 # Maximum recording duration in seconds (optional, default: 300)
 # timeout = 300
 

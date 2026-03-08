@@ -19,6 +19,7 @@ class Config(BaseModel, frozen=True):
     typer: tuple[str, ...]
     model: str = "whisper-large-v3-turbo"
     language: str | None = None
+    prompt: str | None = None
     timeout_seconds: int = Field(default=300, alias="timeout")
     audio_quality: float = 0.8
     runtime_dir: str = Field(default_factory=lambda: os.environ.get("XDG_RUNTIME_DIR", "/tmp"))

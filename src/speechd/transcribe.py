@@ -17,10 +17,11 @@ class TranscriptionResult:
 
 
 class Transcriber:
-    def __init__(self, api_key: str, model: str, language: str | None, audio_quality: float):
+    def __init__(self, api_key: str, model: str, language: str | None, prompt: str | None, audio_quality: float):
         self.client = Groq(api_key=api_key)
         self.model = model
         self.language = language
+        self.prompt = prompt
         self.audio_quality = audio_quality
 
     def transcribe(self, audio_data: np.ndarray) -> TranscriptionResult:
@@ -34,19 +35,17 @@ class Transcriber:
 
             logger.debug(f"Transcribing {len(audio_data) / 16000:.1f}s of audio")
 
+            kwargs = {
+                "file": buffer,
+                "model": self.model,
+                "response_format": "text",
+            }
             if self.language:
-                result = self.client.audio.transcriptions.create(
-                    file=buffer,
-                    model=self.model,
-                    language=self.language,
-                    response_format="text",
-                )
-            else:
-                result = self.client.audio.transcriptions.create(
-                    file=buffer,
-                    model=self.model,
-                    response_format="text",
-                )
+                kwargs["language"] = self.language
+            if self.prompt:
+                kwargs["prompt"] = self.prompt
+
+            result = self.client.audio.transcriptions.create(**kwargs)
 
             return TranscriptionResult(text=str(result), success=True)
         except Exception as e:
