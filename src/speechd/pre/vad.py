@@ -2,15 +2,23 @@ import logging
 
 import numpy as np
 import torch
+from pydantic import BaseModel
+
+from speechd.pre.pipeline import register
 
 logger = logging.getLogger(__name__)
 
 SAMPLE_RATE = 16000
 
 
+@register("vad")
 class VoiceActivityDetector:
-    def __init__(self, max_silence_ms: int = 500):
-        self.max_silence_samples = int(max_silence_ms * SAMPLE_RATE / 1000)
+    class Config(BaseModel):
+        max_silence_ms: int = 500
+
+    def __init__(self, config: Config | None = None):
+        config = config or self.Config()
+        self.max_silence_samples = int(config.max_silence_ms * SAMPLE_RATE / 1000)
         logger.info("Loading Silero VAD model...")
         self.model, self.utils = torch.hub.load(
             repo_or_dir="snakers4/silero-vad",

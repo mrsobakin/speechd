@@ -2,6 +2,7 @@ import logging
 import os
 import stat
 from pathlib import Path
+from typing import Any
 
 import tomllib
 from pydantic import BaseModel, Field, ValidationError, field_validator
@@ -23,6 +24,8 @@ class Config(BaseModel, frozen=True):
     timeout_seconds: int = Field(default=300, alias="timeout")
     audio_quality: float = 0.8
     runtime_dir: str = Field(default_factory=lambda: os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+    pre: list[dict[str, Any]] = []
+    post: list[dict[str, Any]] = []
 
     @field_validator("api_key")
     @classmethod

@@ -3,8 +3,8 @@ import numpy as np
 import time
 from contextlib import contextmanager
 
-from speechd.pre import PrePipeline, AGC, VoiceActivityDetector
-from speechd.post import PostPipeline, DeEmdasher
+from speechd.pre import PrePipeline
+from speechd.post import PostPipeline
 from speechd.config import Config
 from speechd.transcribe import Transcriber
 from speechd.recorder import AudioRecorder
@@ -23,13 +23,8 @@ def measure_time(who: str):
 class Speechd:
     def __init__(self, config: Config):
         self.config = config
-        self.pre = PrePipeline(
-            AGC(),
-            VoiceActivityDetector(),
-        )
-        self.post = PostPipeline(
-            DeEmdasher(True),
-        )
+        self.pre = PrePipeline.from_configs(config.pre)
+        self.post = PostPipeline.from_configs(config.post)
         self.transcriber = Transcriber(
             api_key=config.api_key,
             model=config.model,
@@ -59,12 +54,12 @@ class Speechd:
         if not transcription.success or not transcription.text:
             return ""
 
-        logger.info(f"Raw transcription: \"{transcription.text}\"")
+        logger.info(f'Raw transcription: "{transcription.text}"')
 
         with measure_time("Postprocessing"):
             text = self.post.process(transcription.text)
 
-        logger.info(f"Final transcription: \"{text}\"")
+        logger.info(f'Final transcription: "{text}"')
 
         return text.strip().replace("\n", " ")
 

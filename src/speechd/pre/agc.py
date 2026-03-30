@@ -1,11 +1,19 @@
 import numpy as np
 import pyloudnorm as pyln
+from pydantic import BaseModel
+
+from speechd.pre.pipeline import register
 
 
+@register("agc")
 class AGC:
-    def __init__(self, target_loudness: float = -23.0):
+    class Config(BaseModel):
+        target_loudness: float = -23.0
+
+    def __init__(self, config: Config | None = None):
+        config = config or self.Config()
         self.meter = pyln.Meter(16000)
-        self.target_loudness = target_loudness
+        self.target_loudness = config.target_loudness
 
     def process(self, audio: np.ndarray) -> np.ndarray:
         if len(audio) == 0:
