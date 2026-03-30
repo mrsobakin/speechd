@@ -31,12 +31,8 @@ def install_service():
 
 def main():
     parser = argparse.ArgumentParser(description="Speech-to-Text daemon")
-    parser.add_argument(
-        "--install-service", action="store_true", help="Install systemd user service"
-    )
-    parser.add_argument(
-        "--preview", action="store_true", help="Record audio, preprocess, and play back"
-    )
+    parser.add_argument("--install-service", action="store_true", help="Install systemd user service")
+    parser.add_argument("--preview", action="store_true", help="Record audio, preprocess, and play back")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
@@ -50,15 +46,15 @@ def main():
         datefmt="%H:%M:%S",
     )
 
-    if args.preview:
-        run_preview()
-        return
-
     try:
         config = Config.load()
     except RuntimeError as e:
         logging.error(str(e))
         raise SystemExit(1)
+
+    if args.preview:
+        run_preview()
+        return
 
     daemon = SpeechDaemon(config)
     daemon.run()

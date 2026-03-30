@@ -47,25 +47,16 @@ class Transcriber:
 
             result = self.client.audio.transcriptions.create(**kwargs)
 
-            return TranscriptionResult(text=str(result), success=True)
+            return TranscriptionResult(text=str(result).strip(), success=True)
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             return TranscriptionResult(text="", success=False, error=str(e))
 
-    def _normalize_rms(self, audio: np.ndarray, target_rms: float = 0.1) -> np.ndarray:
-        rms = np.sqrt(np.mean(audio**2))
-        if rms > 1e-8:
-            audio = audio * (target_rms / rms)
-            np.clip(audio, -1.0, 1.0, out=audio)
-        return audio
-
     def _encode_opus(self, audio_data: np.ndarray) -> bytes:
-        audio_float = audio_data.astype(np.float32) / 32768.0
-        audio_float = self._normalize_rms(audio_float)
         buf = io.BytesIO()
         sf.write(
             buf,
-            audio_float,
+            audio_data,
             16000,
             format="OGG",
             subtype="OPUS",

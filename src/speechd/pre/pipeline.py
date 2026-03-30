@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Pipeline:
+class PrePipeline:
     def __init__(self, *processors):
         self.processors = processors
 

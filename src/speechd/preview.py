@@ -4,13 +4,13 @@ import signal
 import numpy as np
 import sounddevice as sd
 
-from speechd.preprocessing import AGC, Pipeline, VoiceActivityDetector
+from speechd.pre import AGC, PrePipeline, VoiceActivityDetector
 
 logger = logging.getLogger(__name__)
 
 
 def run_preview():
-    pipeline = Pipeline(
+    pipeline = PrePipeline(
         AGC(),
         VoiceActivityDetector(),
     )
