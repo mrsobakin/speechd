@@ -1,6 +1,6 @@
 [project]
 name = "speechd"
-version = "1.5.0"
+version = "1.6.0"
 description = "Speech-to-Text daemon with Groq Whisper API"
 requires-python = ">=3.11"
 license = { text = "GPL-3.0-or-later" }
@@ -8,6 +8,7 @@ dependencies = [
     "groq>=0.4.0",
     "numpy>=1.24.0",
     "pydantic>=2.0.0",
+    "pyyaml>=6.0",
     "pyloudnorm>=0.1.0",
     "sounddevice>=0.4.6",
     "soundfile>=0.12.0",

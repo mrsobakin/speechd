@@ -35,4 +35,6 @@ class PostChain:
 
 
 from speechd.post.deemdasher import DeEmdasher
-__all__ = ["PostChain", "DeEmdasher", "register"]
+from speechd.post.stylizer import Stylizer
+
+__all__ = ["PostChain", "DeEmdasher", "Stylizer", "register"]
