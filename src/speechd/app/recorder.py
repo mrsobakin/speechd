@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import sounddevice as sd
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +21,11 @@ class RecordingResult:
 
 
 class AudioRecorder:
-    def __init__(self, timeout_seconds: float):
-        self.timeout_seconds = timeout_seconds
+    class Config(BaseModel):
+        timeout: float = 300
+
+    def __init__(self, config: Config | None = None):
+        self.config = config or self.Config()
 
         self._frames: list[np.ndarray] = []
         self._stream: sd.InputStream | None = None
@@ -61,7 +65,7 @@ class AudioRecorder:
 
     def _callback(self, indata, _frames, _time, _status):
         if self._start_time is not None:
-            if time.monotonic() - self._start_time > self.timeout_seconds:
+            if time.monotonic() - self._start_time > self.config.timeout:
                 self._timed_out = True
                 self.stop()
                 return

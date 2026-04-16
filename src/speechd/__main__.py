@@ -4,9 +4,10 @@ import argparse
 import logging
 from importlib import resources
 
-from speechd.config import Config
-from speechd.daemon import SpeechDaemon
-from speechd.preview import run_preview
+from speechd.app.config import Config
+from speechd.app.daemon import Daemon
+from speechd.app.preview import run_preview
+from speechd.pipeline import Pipeline
 
 
 def get_service_unit() -> str:
@@ -56,7 +57,9 @@ def main():
         run_preview()
         return
 
-    daemon = SpeechDaemon(config)
+    pipeline = Pipeline(config.pipeline)
+
+    daemon = Daemon(pipeline, config.daemon)
     daemon.run()
 
 

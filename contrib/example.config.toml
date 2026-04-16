@@ -1,10 +1,21 @@
-# Groq API key (required)
-api_key = "gsk_xxx"
-
+[daemon]
 # Command to type the transcribed text (required)
 typer = ["wtype", "-"]
 
-# Whisper model to use (optional)
+# Maximum recording duration in seconds (optional, default: 300)
+# [daemon.recorder]
+# timeout = 300
+
+# Runtime directory for pid file and recording indicator
+# (optional, default: $XDG_RUNTIME_DIR or /tmp)
+# runtime_dir = "/run/user/1000"
+
+
+[pipeline.engine]
+# Groq API key (required)
+api_key = "gsk_xxx"
+
+# Whisper model to use (optional, default: whisper-large-v3-turbo)
 # model = "whisper-large-v3-turbo"
 
 # Language code for transcription (optional)
@@ -14,12 +25,16 @@ typer = ["wtype", "-"]
 # Initial prompt for whisper (optional)
 # prompt = ""
 
-# Maximum recording duration in seconds (optional, default: 300)
-# timeout = 300
-
 # Opus encoding quality, 0.0 to 1.0 (optional, default: 0.8)
 # audio_quality = 0.8
 
-# Directory for runtime files (optional, default: $XDG_RUNTIME_DIR or /tmp)
-# Used for pid file and recording indicator
-# runtime_dir = "/run/user/1000"
+
+[[pipeline.pre]]
+type = "agc"
+
+[[pipeline.pre]]
+type = "vad"
+
+
+[[pipeline.post]]
+type = "deemdasher"

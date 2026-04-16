@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 import soundfile as sf
 from groq import Groq
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -16,34 +17,38 @@ class TranscriptionResult:
     error: str | None = None
 
 
-class Transcriber:
-    def __init__(self, api_key: str, model: str, language: str | None, prompt: str | None, audio_quality: float):
-        self.client = Groq(api_key=api_key)
-        self.model = model
-        self.language = language
-        self.prompt = prompt
-        self.audio_quality = audio_quality
+class GroqEngine:
+    class Config(BaseModel):
+        api_key: str
+        model: str = "whisper-large-v3-turbo"
+        language: str | None = None
+        prompt: str | None = None
+        audio_quality: float = 0.8
 
-    def transcribe(self, audio_data: np.ndarray) -> TranscriptionResult:
-        if len(audio_data) == 0:
+    def __init__(self, config: Config):
+        self.client = Groq(api_key=config.api_key)
+        self.config = config
+
+    def transcribe(self, audio: np.ndarray) -> TranscriptionResult:
+        if len(audio) == 0:
             return TranscriptionResult(text="", success=True)
 
         try:
-            opus_data = self._encode_opus(audio_data)
+            opus_data = self._encode_opus(audio)
             buffer = io.BytesIO(opus_data)
             buffer.name = "audio.ogg"
 
-            logger.debug(f"Transcribing {len(audio_data) / 16000:.1f}s of audio")
+            logger.debug(f"Transcribing {len(audio) / 16000:.1f}s of audio")
 
             kwargs = {
                 "file": buffer,
-                "model": self.model,
+                "model": self.config.model,
                 "response_format": "text",
             }
-            if self.language:
-                kwargs["language"] = self.language
-            if self.prompt:
-                kwargs["prompt"] = self.prompt
+            if self.config.language:
+                kwargs["language"] = self.config.language
+            if self.config.prompt:
+                kwargs["prompt"] = self.config.prompt
 
             result = self.client.audio.transcriptions.create(**kwargs)
 
@@ -52,14 +57,14 @@ class Transcriber:
             logger.error(f"Transcription failed: {e}")
             return TranscriptionResult(text="", success=False, error=str(e))
 
-    def _encode_opus(self, audio_data: np.ndarray) -> bytes:
+    def _encode_opus(self, audio: np.ndarray) -> bytes:
         buf = io.BytesIO()
         sf.write(
             buf,
-            audio_data,
+            audio,
             16000,
             format="OGG",
             subtype="OPUS",
-            compression_level=self.audio_quality,
+            compression_level=self.config.audio_quality,
         )
         return buf.getvalue()

@@ -2,7 +2,7 @@ import numpy as np
 import pyloudnorm as pyln
 from pydantic import BaseModel
 
-from speechd.pre.pipeline import register
+from speechd.pre import register
 
 
 @register("agc")

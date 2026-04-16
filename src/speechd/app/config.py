@@ -1,11 +1,12 @@
+from speechd.pipeline import Pipeline
+from speechd.app.daemon import Daemon
 import logging
 import os
 import stat
 from pathlib import Path
-from typing import Any
 
 import tomllib
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, ValidationError
 
 
 def get_config_path() -> Path:
@@ -16,23 +17,8 @@ def get_config_path() -> Path:
 
 
 class Config(BaseModel, frozen=True):
-    api_key: str
-    typer: tuple[str, ...]
-    model: str = "whisper-large-v3-turbo"
-    language: str | None = None
-    prompt: str | None = None
-    timeout_seconds: int = Field(default=300, alias="timeout")
-    audio_quality: float = 0.8
-    runtime_dir: str = Field(default_factory=lambda: os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
-    pre: list[dict[str, Any]] = []
-    post: list[dict[str, Any]] = []
-
-    @field_validator("api_key")
-    @classmethod
-    def validate_api_key(cls, v: str) -> str:
-        if not v or v == "your-api-key-here":
-            raise ValueError("must be set")
-        return v
+    daemon: Daemon.Config
+    pipeline: Pipeline.Config
 
     @classmethod
     def load(cls) -> "Config":

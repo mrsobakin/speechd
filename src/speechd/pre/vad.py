@@ -4,7 +4,8 @@ import numpy as np
 import torch
 from pydantic import BaseModel
 
-from speechd.pre.pipeline import register
+from speechd.pre import register
+
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ import re
 
 from pydantic import BaseModel
 
-from speechd.post.pipeline import register
+from speechd.post import register
 
 _SYMBOLS = str.maketrans({
     "—": "-",
