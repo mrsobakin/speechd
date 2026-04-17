@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import subprocess
+from importlib.metadata import version as pkg_version
 from pathlib import Path
 
 from pydantic import BaseModel, model_validator, Field
@@ -94,7 +95,7 @@ class Daemon:
         signal.signal(signal.SIGTERM, lambda *_: (self.cleanup(), exit(0)))
         signal.signal(signal.SIGINT, lambda *_: (self.cleanup(), exit(0)))
 
-        logger.info(f"Ready. PID: {os.getpid()}")
+        logger.info(f"speechd v{pkg_version('speechd')} Ready. PID: {os.getpid()}")
         logger.info(
             f"Model: {self._pipeline.config.engine.model}, Language: {self._pipeline.config.engine.language or 'auto-detect'}"
         )
