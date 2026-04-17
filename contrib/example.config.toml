@@ -10,6 +10,11 @@ typer = ["wtype", "-"]
 # (optional, default: $XDG_RUNTIME_DIR or /tmp)
 # runtime_dir = "/run/user/1000"
 
+# Path to indicator file containing current state
+# States: "recording" or "transcribing"
+# (optional, default: $XDG_RUNTIME_DIR/speechd.state)
+# indicator_file = "/run/user/1000/speechd.state"
+
 
 [pipeline.engine]
 # Groq API key (required)

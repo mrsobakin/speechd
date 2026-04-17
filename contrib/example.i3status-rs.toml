@@ -1,0 +1,7 @@
+# STT indicator for i3status-rs
+# Shows recording/transcribing state from speechd indicator file
+[[block]]
+block = "custom"
+watch_files = ["$XDG_RUNTIME_DIR/"]
+command = '''state=$(cat "$XDG_RUNTIME_DIR/speechd.state" 2>/dev/null); case "$state" in recording) echo '<span color="#ff6b6b">🎤 Recording...</span>';; transcribing) echo '<span color="#6bafff">💬 Transcribing...</span>';; *) echo "";; esac'''
+hide_when_empty = true

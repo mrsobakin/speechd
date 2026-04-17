@@ -26,7 +26,7 @@ class Daemon:
         @model_validator(mode="after")
         def set_derived_paths(self) -> "Config":
             if self.indicator_file is None:
-                self.indicator_file = self.runtime_dir / "speechd.recording"
+                self.indicator_file = self.runtime_dir / "speechd.state"
             if self.pidfile is None:
                 self.pidfile = self.runtime_dir / "speechd.pid"
             return self
@@ -74,17 +74,8 @@ class Daemon:
         except FileNotFoundError:
             logger.error(f"Typer not found: {self._config.typer[0]}")
 
-    def _wait_result(self) -> str:
-        self._recorder.wait()
-        recording = self._recorder.get_result()
-
-        if recording.timed_out:
-            logger.info(f"Recording cancelled: exceeded {self._config.recorder.timeout}s timeout")
-            return ""
-        if not recording.has_audio:
-            return ""
-
-        return self._pipeline.transcribe(recording.audio)
+    def _write_indicator(self, state: str):
+        self._config.indicator_file.write_text(state)
 
     def run(self):
         if not self._acquire_pidfile():
@@ -104,7 +95,17 @@ class Daemon:
 
         while True:
             os.kill(os.getpid(), signal.SIGSTOP)
-            self._config.indicator_file.touch()
+            self._write_indicator("recording")
             self._recorder.start()
-            self._type_text(self._wait_result())
+            self._recorder.wait()
+            self._write_indicator("transcribing")
+            recording = self._recorder.get_result()
+
+            if recording.timed_out:
+                logger.info(f"Recording cancelled: exceeded {self._config.recorder.timeout}s timeout")
+                self._config.indicator_file.unlink(missing_ok=True)
+                continue
+            if recording.has_audio:
+                self._type_text(self._pipeline.transcribe(recording.audio))
+
             self._config.indicator_file.unlink(missing_ok=True)
