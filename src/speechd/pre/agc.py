@@ -16,11 +16,11 @@ class AGC:
         self.target_loudness = config.target_loudness
 
     def process(self, audio: np.ndarray) -> np.ndarray:
-        if len(audio) == 0:
+        if len(audio) < self.meter.block_size * self.meter.rate:
             return audio
 
         loudness = self.meter.integrated_loudness(audio)
-        if loudness == -float("inf"):
+        if np.isnan(loudness) or np.isinf(loudness):
             return audio
 
         audio = pyln.normalize.loudness(audio, loudness, self.target_loudness)
